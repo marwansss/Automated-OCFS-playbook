@@ -1,0 +1,24 @@
+#Define first play to update server apt repo
+- hosts: all
+  gather_facts: true
+  pre_tasks:
+
+  - name: update apt packages
+    ansible.builtin.apt:
+      update_cache: true
+
+#define second play, which include roles to setup San Server and ocfs cluster intiators
+- hosts: all
+  gather_facts: true
+  roles:
+  - role: San_Config
+    tags: San_Config
+    when: inventory_hostname in groups['San_Server']
+
+  - role: Intiators
+    tags: Intiators
+    when: inventory_hostname in groups['Node_Intiator']  
+
+  - role: Cluster_Config
+    tags: Cluster_Config
+    when: inventory_hostname in groups['Node_Intiator']  

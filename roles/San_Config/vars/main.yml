@@ -1,0 +1,4 @@
+---
+# vars file for San_Config
+DataBlock_Size: 2048
+HeartBeatBlock_Size: 1024

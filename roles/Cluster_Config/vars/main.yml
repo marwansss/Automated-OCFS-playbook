@@ -1,0 +1,5 @@
+---
+# vars file for Cluster_Config
+svr_name1: ol-sys0
+svr_name2: ol-sys1
+Mount_PointBath: /u01

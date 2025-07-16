@@ -1,0 +1,25 @@
+---
+# tasks file for Intiators
+- name: Install iSCSI initiator and OCFS2 tools
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+  - open-iscsi
+  - ocfs2-tools
+
+- name: Discover targets/Configure CHAP for OCFS2 target and GHB target/ Login to both targets to access san storage luns
+  ansible.builtin.shell:
+    cmd: |
+       iscsiadm -m discovery -t sendtargets -p 192.168.1.100
+       iscsiadm -m node -T iqn.2025-07.local.san:storage.disk01 -p 192.168.1.100 --op update -n node.session.auth.authmethod -v CHAP
+       iscsiadm -m node -T iqn.2025-07.local.san:storage.disk01 -p 192.168.1.100 --op update -n node.session.auth.username -v sanuser
+       iscsiadm -m node -T iqn.2025-07.local.san:storage.disk01 -p 192.168.1.100 --op update -n node.session.auth.password -v password123
+       iscsiadm -m node -T iqn.2025-07.local.san:storage.disk02 -p 192.168.1.100 --op update -n node.session.auth.authmethod -v CHAP
+       iscsiadm -m node -T iqn.2025-07.local.san:storage.disk02 -p 192.168.1.100 --op update -n node.session.auth.username -v sanuser
+       iscsiadm -m node -T iqn.2025-07.local.san:storage.disk02 -p 192.168.1.100 --op update -n node.session.auth.password -v password123
+       iscsiadm -m node -T iqn.2025-07.local.san:storage.disk01 -p 192.168.1.100 --login
+       iscsiadm -m node -T iqn.2025-07.local.san:storage.disk02 -p 192.168.1.100 --login
+       touch luns_connected
+  args:
+    creates: luns_connected

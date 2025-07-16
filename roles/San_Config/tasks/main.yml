@@ -1,0 +1,35 @@
+---
+# tasks file for San_Config
+- name: install Install iSCSI target package
+  ansible.builtin.apt:
+    name: tgt
+    state: present
+ 
+- name: Create a directory for 2 shared disk files (HeartBeat & Data Disk)
+  ansible.builtin.file:
+    path: /srv/iscsi-disks
+    state: directory
+    mode: '0755'
+    
+- name: Creates Main OCFS2 storage (Data storage) in MB and  sec OCFS2 storage (HeartBeat) in MB
+  ansible.builtin.shell:
+    cmd: |
+       dd if=/dev/zero of=/srv/iscsi-disks/disk01.img bs=1M count="{{DataBlock_Size}}"
+       dd if=/dev/zero of=/srv/iscsi-disks/disk02.img bs=1M count="{{HeartBeatBlock_Size}}"
+       touch luns_created
+  args:
+    creates: luns_created
+
+- name: Copy San Luns Config File
+  ansible.builtin.copy:
+    src: iscsi-luns.conf
+    dest: /etc/tgt/conf.d/iscsi-luns.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: StartTGTService
+  ansible.builtin.service:
+    name: tgt
+    enabled: yes
+    state: restarted

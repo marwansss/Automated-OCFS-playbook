@@ -1,0 +1,7 @@
+---
+# handlers file for San_Config
+- name: StartTGTService
+  ansible.builtin.service:
+    name: tgt
+    enabled: yes
+    state: restarted
